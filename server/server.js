@@ -1,27 +1,24 @@
-var express = require('express');
-var app = express();
-var path = require('path');
-var bodyParser = require('body-parser');
-var urlParser = bodyParser.urlencoded({extended: false});
-var jsonParser = bodyParser.json();
-var request = require('request');
-var sendTextToDB = require('../controllers/dbController');
-
 require('dotenv').config();
+const express = require('express');
+const app = express();
+const path = require('path');
+const bodyParser = require('body-parser');
+const urlParser = bodyParser.urlencoded({extended: false});
+const jsonParser = bodyParser.json();
+const request = require('request');
 
-var articles = require('./database/controllers/articlesController');
-var sources = require('./database/controllers/sourcesController');
-var users = require('./database/controllers/usersController');
+const sendTextToDB = require('../controllers/dbController');
 
+const articles = require('./database/controllers/articlesController');
+const sources = require('./database/controllers/sourcesController');
+const users = require('./database/controllers/usersController');
+// const parserKey = process.env.PARSER_KEY // NOT WORKING; JERRY CHECKED; NEED TO ASK JOHN M
+// console.log('process.env = ', process.env);
+const parserKey = 'KmjXDnLR5Dmtn2IPHQCwONFAFUlaJQpObfJq0AM6';
 
 app.use(bodyParser.json());
 
 app.use(express.static(path.join(__dirname, './client')));
-
-// app.post('/requrl/:requrl', function(req, res) {
-//   console.log('server.js, POST to /requrl/:requrl. l. 15: req received.');
-//   let requrl = req.params.requrl;
-//   console.log('server.js POST to requrl. l. 14. req.params.url = ', req.params.requrl);
 
 // receive POST req of URL user wants to hear; send GET req to Mercury & receive obj w/ parsed data; send to dbController; (will refactor to pull out routes at least)
 app.post('/requrl', function(req, res) {
@@ -29,29 +26,29 @@ app.post('/requrl', function(req, res) {
   let requrl = req.body.requrl;
   console.log('server.js POST to requrl. l. 14. requrl = ', requrl);
 
-  var objToSaveToDB = {
+  const objToSaveToDB = {
     requrl: requrl
   };
   // console.log('objToSaveToDB w/ initial value (requrl) = ', objToSaveToDB);
 
-  var options = { method: 'GET',
+  const parserOptions = { method: 'GET',
   url: 'https://mercury.postlight.com/parser?url=' + requrl,
   // qs: { url: 'requrl' },
   headers:
    {
-     'x-api-key': PARSER_KEY,
+     'x-api-key': parserKey,
      'content-type': 'application/json' }
    };
 
-  request(options, function (error, response, body) {
+  request(parserOptions, function (error, response, body) {
     if (error) {console.log('server.js, GET req to Mercury. error! = ',
       console.error);
       res.status(400).send('Dang; error retrieving parsed text of url from Mercury...');
     };
+    var parsedBody = JSON.parse(body);
     console.log('server.js GET req to Mercury, l. 43. body received = ',
       body, 'END OF BODY ###########\n\n');
-      console.log('server.js GET req to Mercury, l. 45. Response JSON.parse(body) = ', JSON.parse(body));
-      var parsedBody = JSON.parse(body);
+    console.log('server.js GET req to Mercury, l. 45. Response JSON.parse(body) = ', parsedBody);
 
     objToSaveToDB.title = parsedBody.title;
     objToSaveToDB.domain = parsedBody.domain;
@@ -66,7 +63,7 @@ app.post('/requrl', function(req, res) {
 
     sendTextToDB.saveTextToDB(objToSaveToDB);
 
-    res.status(200).send('Got your request. Obj we will write to db = ' + objToSaveToDB);
+    res.status(200).send('Got your request. Text of article = ' + objToSaveToDB.text);
   });
 });
 
@@ -100,7 +97,7 @@ app.post('/jsonTest', jsonParser, function(req, res) {
   res.sendStatus(200);
 });
 
-var port = process.env.PORT || 8080;
+const port = process.env.PORT || 8080; // NB: Jerry said we don't want PORT in the .env file, as it will be supplied by deployment platform
 
 app.listen(port, function() {
   console.log("Readcastly server listening intently on port: ", port);
