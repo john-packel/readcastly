@@ -94,7 +94,7 @@ class App extends React.Component {
 			showMembersOnly: false,
 			isFiltered: false
 		};
-		
+
 	}
 
   getCurrentUser(){
@@ -352,7 +352,7 @@ class App extends React.Component {
 	toggleHeadlines() {
 		this.setState({gettingHeadlines: true});
 	}
-	
+
 	toggleFiltered() {
 		let currentState = this.state.isFiltered;
 		console.log('========App.jsx - inside toggleFiltered-PRE: this.state.isFiltered: ', this.state.isFiltered)
@@ -408,6 +408,7 @@ class App extends React.Component {
 				<TransFormEr postIt={this.postUserLink.bind(this)} isLoading={this.state.isLoading} toggleLoading={this.toggleLoading.bind(this)} isGuest={this.state.isGuest} quickStream={this.quickStream.bind(this)} />
 
 				<ToggleDisplay show={!this.state.isGuest}>
+
 					<WhichView isLoading={this.state.isLoading} isFiltered={this.state.isFiltered} toggleLoading={this.toggleLoading.bind(this)} toggleView={this.toggleView.bind(this)} topStoryMode={this.state.topStoryMode} searchForIt={this.filterArticles.bind(this)} showAll={this.libraryShowAll.bind(this)} />
 					{/*this.state.isLoading && <Loading />*/}
 					<ToggleDisplay show={!this.state.topStoryMode}>
@@ -450,7 +451,7 @@ export default App;
 
 	// <ReadcastTopstories readcast='Your Read.casts'/>
 	// => TODO: // get player scroll to work. Test text: Last word is "initially". This is a song by the legendary Badfinger, who were on Apple Records. Apple Computer told the Beatles they would never be in music so that settled the court case initially
-  
+
 		// <Title title='Read.Cast.ly'/>
 
 					// <div id="navbar"></div>
